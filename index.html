@@ -414,12 +414,14 @@
     display: flex; flex-direction: column; justify-content: flex-end;
     padding: 28px;
     opacity: 0; transition: opacity 0.4s;
+    pointer-events: none; /* Let clicks pass through */
   }
   .project-card:hover .project-overlay { opacity: 1; }
   .project-always {
     position: absolute; bottom: 0; left: 0; right: 0;
     padding: 20px 28px 24px;
     background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+    pointer-events: none; /* Let clicks pass through */
   }
   .project-cat {
     font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
@@ -446,9 +448,40 @@
     opacity: 0; transform: scale(0.7);
     transition: all 0.3s;
     border-radius: 50%;
+    pointer-events: none;
   }
   .project-card:hover .project-arrow { opacity: 1; transform: scale(1); }
   .project-arrow svg { width: 16px; height: 16px; color: #000; }
+
+  /* --- YOUTUBE STYLES --- */
+  .yt-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+  }
+  .project-card:hover .yt-play-btn {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  .yt-label {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--accent);
+    color: #000;
+    padding: 6px 12px;
+    font-size: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 2px;
+    z-index: 5;
+    pointer-events: none;
+  }
 
   /* Project thumb color palettes */
   .thumb-concert { background: linear-gradient(135deg, #1a0a2e 0%, #0d0517 50%, #1e0a35 100%); }
@@ -623,7 +656,6 @@
     padding: 18px 20px;
     border: 1px solid var(--border);
     transition: all 0.3s;
-    group: true;
   }
   .contact-link:hover {
     border-color: rgba(232,201,122,0.4);
@@ -944,16 +976,19 @@
   </div>
   <div class="projects-grid">
 
-    <!-- Featured -->
-    <div class="project-card featured fade-up">
-      <div class="project-thumb">
-        <div class="project-thumb-inner thumb-concert">
-          <svg viewBox="0 0 80 50" style="width:80px;opacity:0.15" fill="none" stroke="white" stroke-width="1">
-            <circle cx="40" cy="25" r="15"/><line x1="40" y1="5" x2="40" y2="0"/>
-            <line x1="60" y1="15" x2="65" y2="10"/><line x1="60" y1="35" x2="65" y2="40"/>
-            <line x1="20" y1="15" x2="15" y2="10"/>
-          </svg>
+    <!-- PROJECT YOUTUBE EMBED -->
+    <div class="project-card featured fade-up" id="card-kisah">
+      <div class="project-thumb yt-thumb-wrap" id="yt-kisah" onclick="loadYT('kisah','3Vhc6dIix6E')" style="cursor:pointer;">
+        <img
+          src="https://img.youtube.com/vi/3Vhc6dIix6E/maxresdefault.jpg"
+          onerror="this.src='https://img.youtube.com/vi/3Vhc6dIix6E/hqdefault.jpg'"
+          alt="Intimate Concert Kisah Sempurna"
+          style="width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:16/9;"
+        />
+        <div class="yt-play-btn">
+          <svg viewBox="0 0 24 24" fill="white" width="48" height="48"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.6)"/><polygon points="10,8 18,12 10,16" fill="white"/></svg>
         </div>
+        <div class="yt-label">▶ Tonton Video</div>
       </div>
       <div class="project-always">
         <div class="project-cat">Concert Video Event</div>
@@ -964,11 +999,9 @@
         <div class="project-name">Intimate Concert "Kisah Sempurna"</div>
         <div class="project-role">Camera Person 1 & Editor · Mahalini & Rizky Febian · Tranz Mav Hotel Samarinda</div>
       </div>
-      <div class="project-arrow">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
-      </div>
     </div>
 
+    <!-- PROJECT LAINNYA -->
     <div class="project-card fade-up">
       <div class="project-thumb">
         <div class="project-thumb-inner thumb-sym">
@@ -1382,7 +1415,7 @@
     requestAnimationFrame(animRing);
   }
   animRing();
-  document.querySelectorAll('a, button, .project-card, .service-card').forEach(el => {
+  document.querySelectorAll('a, button, .project-card, .service-card, .yt-thumb-wrap').forEach(el => {
     el.addEventListener('mouseenter', () => {
       ring.style.transform = 'translate(-50%,-50%) scale(1.6)';
       ring.style.borderColor = 'rgba(232,201,122,0.8)';
@@ -1392,6 +1425,27 @@
       ring.style.borderColor = 'rgba(232,201,122,0.5)';
     });
   });
+
+  // Fungsi untuk mengganti thumbnail dengan YouTube iframe
+  function loadYT(id, videoId) {
+    const container = document.getElementById('yt-' + id);
+    const card = document.getElementById('card-' + id);
+    
+    if (!container || !card) return;
+
+    // Hapus fungsi onclick agar video tidak me-load berulang kali ketika disentuh
+    container.onclick = null;
+    
+    // Ganti kontainer dengan iframe youtube menggunakan parameter autoplay
+    container.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; z-index: 20;"></iframe>`;
+    container.style.cursor = 'default';
+    
+    // Sembunyikan semua text overlay dan border gradient di atas iframe agar dapat di-klik
+    const overlay = card.querySelector('.project-overlay');
+    const always = card.querySelector('.project-always');
+    if(overlay) overlay.style.display = 'none';
+    if(always) always.style.display = 'none';
+  }
 
   // Scroll reveal
   const faders = document.querySelectorAll('.fade-up');
